@@ -1,0 +1,16 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Calling</title>
+    <link rel="stylesheet" href="{% static 'styles/main.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+    <script defer src="{% static 'assets/AgoraRTC_N-4.23.1.js' %}"></script>
+    <script defer src="{% static 'scripts/main.js' %}"></script>
+</head>
+<body>
+    {% block content %}{% endblock %}
+</body>
+</html>
