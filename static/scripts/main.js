@@ -39,6 +39,7 @@ let joinAndDisplayLocalStream = async () => {
     await client.publish([localTracks[0], localTracks[1]])
 }
 
+
 let handleUserJoined = async (user, mediaType) => {
     remoteUsers[user.uid] = user
     await client.subscribe(user, mediaType)
