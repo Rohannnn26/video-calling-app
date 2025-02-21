@@ -149,66 +149,29 @@ window.addEventListener("beforeunload", deleteMember);
 
 // Function to Initialize Speech Translation with Language Detection
 let initSpeechTranslation = (audioTrack) => {
-    const speechConfig = SpeechSDK.SpeechTranslationConfig.fromSubscription(AZURE_SPEECH_KEY, AZURE_REGION);
-    speechConfig.speechRecognitionLanguage = "en-US"; // Default, but language detection is enabled below
-    speechConfig.addTargetLanguage(PREFERRED_LANGUAGE);
-  
-    // Enable Automatic Language Detection
-    speechConfig.enableLanguageId = true;
-  
-    const audioConfig = SpeechSDK.AudioConfig.fromDefaultMicrophoneInput();
-    const recognizer = new SpeechSDK.TranslationRecognizer(speechConfig, audioConfig);
-  
-    // Mute the user's raw audio
-    audioTrack.enabled = false; // This prevents the original audio from playing
-  
-    recognizer.recognizing = (s, e) => {
-      console.log(`Recognizing: ${e.result.text}`);
-    };
-  
-    recognizer.recognized = (s, e) => {
-      if (e.result.reason === SpeechSDK.ResultReason.TranslatedSpeech) {
-        const translatedText = e.result.translations.get(PREFERRED_LANGUAGE);
-        console.log(`Detected Language: ${e.result.language}`);
-        console.log(`Translated (${PREFERRED_LANGUAGE}): ${translatedText}`);
-  
-        // Convert translated text to speech
-        playTranslatedSpeech(translatedText);
-      }
-    };
-  
-    recognizer.startContinuousRecognitionAsync();
+  const speechConfig = SpeechSDK.SpeechTranslationConfig.fromSubscription(AZURE_SPEECH_KEY, AZURE_REGION);
+  speechConfig.speechRecognitionLanguage = "en-US"; // Default, but language detection is enabled below
+  speechConfig.addTargetLanguage(PREFERRED_LANGUAGE);
+
+  // Enable Automatic Language Detection
+  speechConfig.enableLanguageId = true; // Detects language automatically
+
+  const audioConfig = SpeechSDK.AudioConfig.fromDefaultMicrophoneInput();
+  const recognizer = new SpeechSDK.TranslationRecognizer(speechConfig, audioConfig);
+
+  recognizer.recognizing = (s, e) => {
+    console.log(`Recognizing: ${e.result.text}`);
   };
-  
-  // Function to convert translated text into speech
-  let playTranslatedSpeech = async (text) => {
-    if (!text) return; // Prevent empty text from being processed
-  
-    // Create SpeechConfig for Text-to-Speech
-    const speechConfig = SpeechSDK.SpeechConfig.fromSubscription(AZURE_SPEECH_KEY, AZURE_REGION);
-    speechConfig.speechSynthesisVoiceName = PREFERRED_LANGUAGE === "hi" ? "hi-IN-MadhurNeural" : "en-US-JennyNeural"; // Example voices
-  
-    const audioConfig = SpeechSDK.AudioConfig.fromDefaultSpeakerOutput(); // Ensures correct audio output
-    const synthesizer = new SpeechSDK.SpeechSynthesizer(speechConfig, audioConfig);
-  
-    synthesizer.speakTextAsync(
-      text,
-      (result) => {
-        if (result.reason === SpeechSDK.ResultReason.SynthesizingAudioCompleted) {
-          console.log("Audio played successfully.");
-        } else {
-          console.error("Speech synthesis error:", result.errorDetails);
-        }
-        synthesizer.close();
-      },
-      (error) => {
-        console.error("Error during speech synthesis:", error);
-        synthesizer.close();
-      }
-    );
+
+  recognizer.recognized = (s, e) => {
+    if (e.result.reason === SpeechSDK.ResultReason.TranslatedSpeech) {
+      console.log(`Detected Language: ${e.result.language}`)
+      console.log(`Translated (${PREFERRED_LANGUAGE}): ${e.result.translations.get(PREFERRED_LANGUAGE)}`);
+    }
   };
-  
-  
+
+  recognizer.startContinuousRecognitionAsync();
+};
 
 joinAndDisplayLocalStream();
 

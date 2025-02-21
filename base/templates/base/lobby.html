@@ -25,8 +25,8 @@
 
                 <div class="form-field">
                     <label>Preferred Language:</label>
-                    <select name="preferred_language">
-                        <option value="en">English</option>
+                    <select name="preferred_language" id="preferred_language">
+                        <option value="en" selected>English</option>
                         <option value="es">Spanish</option>
                         <option value="fr">French</option>
                         <option value="de">German</option>
@@ -50,7 +50,9 @@
         e.preventDefault();
         let room = e.target.room.value.toUpperCase();
         let name = e.target.name.value.toUpperCase();
-        let preferredLanguage = e.target.preferred_language.value;
+        let preferred_language = e.target.preferred_language.value;  // Fetch correct value
+
+        console.log("Selected Language Before Sending:", preferred_language);  // Debugging
 
         let response = await fetch(`/get-token/?channel=${room}`);
         let data = await response.json();
@@ -62,7 +64,26 @@
         sessionStorage.setItem('token', token);
         sessionStorage.setItem('room', room);
         sessionStorage.setItem('name', name);
-        sessionStorage.setItem('preferred_language', preferredLanguage);
+        sessionStorage.setItem('preferred_language', preferred_language);
+
+        console.log("Data Sent to create-member:", {
+            UID,
+            name,
+            room_name: room,
+            preferred_language: preferred_language
+        });  // Debugging
+
+        // Send data to backend
+        await fetch('/create-member/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                UID: UID,
+                name: name,
+                room_name: room,
+                preferred_language: preferred_language  // Ensure it's included
+            })
+        });
 
         window.open('/room/', '_self');
     };
