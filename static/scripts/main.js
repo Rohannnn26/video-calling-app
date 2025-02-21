@@ -97,6 +97,20 @@ let leaveAndRemoveLocalStream = async () => {
   window.open("/", "_self");
 };
 
+let isTranslationEnabled = false; // Translation is disabled by default
+
+let toggleTranslation = (e) => {
+    isTranslationEnabled = !isTranslationEnabled;
+
+    if (isTranslationEnabled) {
+        e.target.style.backgroundColor = "#fff"; // Enabled - White
+        console.log("Translation Enabled.");
+    } else {
+        e.target.style.backgroundColor = "rgb(255, 80, 80, 1)"; // Disabled - Red
+        console.log("Translation Disabled.");
+    }
+};
+
 let toggleCamera = async (e) => {
   if (localTracks[1].muted) {
     await localTracks[1].setMuted(false);
@@ -148,37 +162,43 @@ let deleteMember = async () => {
 window.addEventListener("beforeunload", deleteMember);
 
 // Function to Initialize Speech Translation with Language Detection
+// Modify initSpeechTranslation to respect the translate toggle
 let initSpeechTranslation = (audioTrack) => {
     const speechConfig = SpeechSDK.SpeechTranslationConfig.fromSubscription(AZURE_SPEECH_KEY, AZURE_REGION);
-    speechConfig.speechRecognitionLanguage = "en-US"; // Default, but language detection is enabled below
+    speechConfig.speechRecognitionLanguage = "en-US"; // Default language
     speechConfig.addTargetLanguage(PREFERRED_LANGUAGE);
-  
-    // Enable Automatic Language Detection
     speechConfig.enableLanguageId = true;
-  
+
     const audioConfig = SpeechSDK.AudioConfig.fromDefaultMicrophoneInput();
     const recognizer = new SpeechSDK.TranslationRecognizer(speechConfig, audioConfig);
-  
-    // Mute the user's raw audio
-    audioTrack.enabled = false; // This prevents the original audio from playing
-  
+
+    // Only mute raw audio when translation is enabled
+    const toggleAudio = () => {
+        audioTrack.enabled = !isTranslationEnabled; // Disable when translating, enable when not
+    };
+
+    toggleAudio(); // Set initial state
+
     recognizer.recognizing = (s, e) => {
-      console.log(`Recognizing: ${e.result.text}`);
+        if (isTranslationEnabled) {
+            console.log(`Recognizing: ${e.result.text}`);
+        }
     };
-  
+
     recognizer.recognized = (s, e) => {
-      if (e.result.reason === SpeechSDK.ResultReason.TranslatedSpeech) {
-        const translatedText = e.result.translations.get(PREFERRED_LANGUAGE);
-        console.log(`Detected Language: ${e.result.language}`);
-        console.log(`Translated (${PREFERRED_LANGUAGE}): ${translatedText}`);
-  
-        // Convert translated text to speech
-        playTranslatedSpeech(translatedText);
-      }
+        if (isTranslationEnabled && e.result.reason === SpeechSDK.ResultReason.TranslatedSpeech) {
+            const translatedText = e.result.translations.get(PREFERRED_LANGUAGE);
+            console.log(`Translated (${PREFERRED_LANGUAGE}): ${translatedText}`);
+            playTranslatedSpeech(translatedText);
+        }
     };
-  
+
     recognizer.startContinuousRecognitionAsync();
-  };
+
+    // Listen for translation toggle changes
+    document.getElementById("translate-btn").addEventListener("click", toggleAudio);
+};
+
   
   // Function to convert translated text into speech
   let playTranslatedSpeech = async (text) => {
@@ -211,6 +231,11 @@ let initSpeechTranslation = (audioTrack) => {
   
 
 joinAndDisplayLocalStream();
+
+document.getElementById("translate-btn").style.backgroundColor = "rgb(255, 80, 80, 1)"; // Default to disabled (red)
+
+// Attach event listener
+document.getElementById("translate-btn").addEventListener("click", toggleTranslation);
 
 document.getElementById("leave-btn").addEventListener("click", leaveAndRemoveLocalStream);
 document.getElementById("camera-btn").addEventListener("click", toggleCamera);
