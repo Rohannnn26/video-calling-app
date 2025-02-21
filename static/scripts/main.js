@@ -37,7 +37,12 @@ let joinAndDisplayLocalStream = async () => {
     document.getElementById('video-streams').insertAdjacentHTML('beforeend', player)
     localTracks[1].play(`user-${UID}`)
     await client.publish([localTracks[0], localTracks[1]])
+
+    // Set default button colors to white
+    document.getElementById('camera-btn').style.backgroundColor = '#fff'
+    document.getElementById('mic-btn').style.backgroundColor = '#fff'
 }
+
 
 
 let handleUserJoined = async (user, mediaType) => {
@@ -78,7 +83,6 @@ let leaveAndRemoveLocalStream = async () => {
     }
 
     await client.leave()
-    //This is somewhat of an issue because if user leaves without actaull pressing leave button, it will not trigger
     deleteMember()
     window.open('/', '_self')
 }

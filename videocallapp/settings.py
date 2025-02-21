@@ -11,20 +11,21 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
+# See htherettps://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-$lux5m^-tm$w$g1i*rj3dy@div5%f^qh5z)%wpc9o&-5h_-#(!'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-    
+
 ALLOWED_HOSTS = ["*"]
 
 
@@ -38,7 +39,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'base',
+    'tailwind',
+    'channels', 
+    'djangochannelsrestframework',
+    
 ]
+
+TAIWIND_APP_NAME = 'tailwind'
+INTERNAL_IPS    = ['127.0.0.1']
+NPM_BIN_PATH    = r'C:\Program Files\nodejs\npm.cmd'
 
 
 
@@ -71,6 +80,10 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'videocallapp.wsgi.application'
+ASGI_APPLICATION = "videocallapp.asgi.application"
+
+
+
 
 
 # Database
@@ -81,6 +94,12 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
+}
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    },
 }
 
 

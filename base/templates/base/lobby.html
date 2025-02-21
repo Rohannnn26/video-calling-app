@@ -3,9 +3,7 @@
 {% block content %}
 
 <main>
-
     <section id="form-container">
-
         <img id="logo" src="{% static 'images/panda.jpg' %}"/>
 
         <div id="welcome-message">
@@ -15,15 +13,26 @@
 
         <form id="form">
             <div class="field-wrapper">
-
                 <div class="form-field">
                     <label>Room:</label>
-                    <input name="room" placeholder="Enter a room name..."  style="text-transform:uppercase"/>
+                    <input name="room" placeholder="Enter a room name..." style="text-transform:uppercase"/>
                 </div>
 
                 <div class="form-field">
                     <label>Name:</label>
-                    <input name="name" placeholder="Enter your name..."  style="text-transform:uppercase"/>
+                    <input name="name" placeholder="Enter your name..." style="text-transform:uppercase"/>
+                </div>
+
+                <div class="form-field">
+                    <label>Preferred Language:</label>
+                    <select name="preferred_language">
+                        <option value="en">English</option>
+                        <option value="es">Spanish</option>
+                        <option value="fr">French</option>
+                        <option value="de">German</option>
+                        <option value="hi">Hindi</option>
+                        <option value="zh">Chinese</option>
+                    </select>
                 </div>
 
                 <div class="form-field">
@@ -35,29 +44,30 @@
 </main>
 
 <script>
-    let form = document.getElementById('form')
+    let form = document.getElementById('form');
 
     let handleSubmit = async (e) => {
-        e.preventDefault()
-        let room = e.target.room.value.toUpperCase()
-        let name = e.target.name.value.toUpperCase()
+        e.preventDefault();
+        let room = e.target.room.value.toUpperCase();
+        let name = e.target.name.value.toUpperCase();
+        let preferredLanguage = e.target.preferred_language.value;
 
-        let response = await fetch(`/get-token/?channel=${room}`)
-        let data = await response.json()
+        let response = await fetch(`/get-token/?channel=${room}`);
+        let data = await response.json();
 
-        let UID = data.uid
-        let token = data.token
+        let UID = data.uid;
+        let token = data.token;
 
-        sessionStorage.setItem('UID', UID) 
-        sessionStorage.setItem('token', token)
-        sessionStorage.setItem('room', room)
-        sessionStorage.setItem('name', name)
+        sessionStorage.setItem('UID', UID);
+        sessionStorage.setItem('token', token);
+        sessionStorage.setItem('room', room);
+        sessionStorage.setItem('name', name);
+        sessionStorage.setItem('preferred_language', preferredLanguage);
 
-        window.open('/room/' , '_self')
-    }
+        window.open('/room/', '_self');
+    };
 
-    form.addEventListener('submit', handleSubmit)
-
+    form.addEventListener('submit', handleSubmit);
 </script>
 
 {% endblock %}

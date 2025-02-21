@@ -225,27 +225,137 @@ body {
     padding: 12px;
     border-radius: 50%;
     background-color: var(--control-background);
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
+    border: 2px solid transparent; /* Default border */
 }
 
 .control-icon img {
-    filter: invert(1); /* Ensure icons are white */
+    filter: invert(1); /* Ensures icons remain white */
     width: 24px;
     height: 24px;
 }
 
+/* Hover effect for all buttons */
 .control-icon:hover {
     background-color: var(--control-hover);
     transform: scale(1.1);
+    box-shadow: 0px 0px 8px rgba(255, 255, 255, 0.2);
 }
 
+/* Active (clicked) effect */
+.control-icon:active {
+    transform: scale(0.95);
+}
+
+/* Camera and Mic Button - Muted State */
+.muted {
+    background-color: rgba(255, 80, 80, 0.8) !important; /* Red muted effect */
+    border: 2px solid #ff5050;
+}
+
+.muted img {
+    filter: invert(1) brightness(0.8); /* Dimmed effect */
+}
+
+/* Leave Button */
 #leave-btn {
     background-color: var(--danger-color);
+    border: 2px solid var(--danger-color);
 }
 
 #leave-btn:hover {
     background-color: #b3140c;
+    box-shadow: 0px 0px 10px rgba(255, 0, 0, 0.6);
+}
+
+/* Translate Button */
+#translate-btn {
+    cursor: pointer;
+    height: 50px;
+    width: 50px;
+    padding: 12px;
+    border-radius: 50%;
+    background-color: var(--control-background);
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    border: 2px solid var(--primary-color);
+}
+
+#translate-btn:hover {
+    background-color: var(--button-hover);
+    transform: scale(1.1);
+    box-shadow: 0px 0px 10px rgba(26, 115, 232, 0.6);
+}
+
+/* Responsive Fix for Controls */
+@media screen and (max-width: 768px) {
+    .control-icon {
+        height: 40px;
+        width: 40px;
+        padding: 10px;
+    }
+
+    .control-icon img {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+.form-field select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    background-color: var(--input-background);
+    border: 1px solid var(--input-border);
+    color: var(--text-color);
+    font-size: 14px;
+    cursor: pointer;
+    appearance: none; /* Hides default browser dropdown styling */
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+/* Dropdown arrow icon */
+.form-field {
+    position: relative;
+}
+
+.form-field select {
+    padding-right: 30px; /* Space for custom arrow */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='white'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 15px;
+}
+
+/* Hover & Focus */
+.form-field select:hover {
+    border-color: var(--primary-color);
+}
+
+.form-field select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background-color: var(--control-hover);
+}
+
+/* Dropdown options */
+.form-field select option {
+    background-color: var(--input-background);
+    color: var(--text-color);
+}
+
+/* Scrollbar customization */
+.form-field select::-webkit-scrollbar {
+    width: 8px;
+}
+
+.form-field select::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 6px;
+}
+
+.form-field select::-webkit-scrollbar-track {
+    background: var(--control-background);
 }
