@@ -1,0 +1,270 @@
+#chat-btn {
+    cursor: pointer;
+    height: 50px;
+    width: 50px;
+    padding: 12px;
+    border-radius: 50%;
+    background-color: var(--control-background);
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--primary-color);
+    position: fixed;
+    bottom: 20px;
+    right: 20px; /* Moves it to the bottom-right */
+    z-index: 100; /* Ensures it stays above other elements */
+}
+
+#chat-btn img {
+    width: 24px;
+    height: 24px;
+    filter: invert(1);
+}
+
+#chat-btn:hover {
+    background-color: var(--button-hover);
+    transform: scale(1.1);
+    box-shadow: 0px 0px 10px rgba(26, 115, 232, 0.6);
+}
+
+/* Responsive Fix */
+@media screen and (max-width: 768px) {
+    #chat-btn {
+        height: 40px;
+        width: 40px;
+        padding: 10px;
+        bottom: 15px;
+        right: 15px; /* Adjusted position for smaller screens */
+    }
+
+    #chat-btn img {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+
+.form-field select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    background-color: var(--input-background);
+    border: 1px solid var(--input-border);
+    color: var(--text-color);
+    font-size: 14px;
+    cursor: pointer;
+    appearance: none; /* Hides default browser dropdown styling */
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+/* Dropdown arrow icon */
+.form-field {
+    position: relative;
+}
+
+.form-field select {
+    padding-right: 30px; /* Space for custom arrow */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='white'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 15px;
+}
+
+/* Hover & Focus */
+.form-field select:hover {
+    border-color: var(--primary-color);
+}
+
+.form-field select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background-color: var(--control-hover);
+}
+
+/* Dropdown options */
+.form-field select option {
+    background-color: var(--input-background);
+    color: var(--text-color);
+}
+
+/* Scrollbar customization */
+.form-field select::-webkit-scrollbar {
+    width: 8px;
+}
+
+.form-field select::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 6px;
+}
+
+.form-field select::-webkit-scrollbar-track {
+    background: var(--control-background);
+}
+
+/* Dark Theme Styles */
+#chat-container {
+    position: fixed;
+    bottom: 60px; /* Adjusted to be above chat icon */
+    right: 80px; /* Adjusted to be slightly left of chat icon */
+    width: 350px;
+    height: 420px;
+    background: rgba(30, 30, 30, 0.95); /* Dark Glass Effect */
+    border-radius: 12px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.3s ease-in-out;
+    transform: translateY(20px) translateX(20px);
+    opacity: 0;
+    backdrop-filter: blur(10px);
+}
+
+/* When chat opens */
+#chat-container.show {
+    display: flex;
+    transform: translateY(0) translateX(0);
+    opacity: 1;
+}
+
+
+/* Chat Header */
+#chat-header {
+    background: rgba(50, 50, 50, 0.9);
+    color: white;
+    padding: 14px;
+    font-size: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    cursor: grab;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#close-chat {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+#close-chat:hover {
+    transform: scale(1.2);
+}
+
+/* Chat Messages */
+#chat-messages {
+    flex-grow: 1;
+    padding: 10px;
+    overflow-y: auto;
+    max-height: 320px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Custom Scrollbar */
+#chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+#chat-messages::-webkit-scrollbar-thumb {
+    background: rgba(100, 100, 100, 0.8);
+    border-radius: 5px;
+}
+
+#chat-messages::-webkit-scrollbar-track {
+    background: rgba(50, 50, 50, 0.3);
+}
+
+/* Chat Message Styles */
+.message {
+    max-width: 75%;
+    padding: 8px 14px;
+    border-radius: 14px;
+    margin-bottom: 8px;
+    font-size: 14px;
+    animation: fadeIn 0.3s ease-in-out;
+    word-wrap: break-word;
+}
+
+.message.user {
+    background: #007bff;
+    color: white;
+    align-self: flex-end;
+}
+
+.message.other {
+    background: #444;
+    color: white;
+    align-self: flex-start;
+}
+
+/* Message Fade Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Chat Input Section */
+#chat-input-container {
+    display: flex;
+    padding: 6px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(50, 50, 50, 0.9);
+}
+
+#chat-input {
+    flex-grow: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    outline: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    transition: background 0.2s;
+}
+
+#chat-input:focus {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+#send-chat {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    cursor: pointer;
+    border-radius: 6px;
+    margin-left: 5px;
+    transition: background 0.2s;
+}
+
+#send-chat:hover {
+    background: #0056b3;
+}
+
+/* Typing Indicator */
+#typing-indicator {
+    font-size: 13px;
+    color: rgba(200, 200, 200, 0.8);
+    display: none;
+    padding: 5px 10px;
+    font-style: italic;
+    animation: fadeBlink 1s infinite;
+}
+
+@keyframes fadeBlink {
+    0% { opacity: 0.3; }
+    50% { opacity: 1; }
+    100% { opacity: 0.3; }
+}
