@@ -19,11 +19,26 @@
         <div class="icon-wrapper">
             <img class="control-icon" id="leave-btn" src="{% static 'images/leave.jpg' %}" alt="Leave" />
         </div>
-
         <div class="icon-wrapper">
             <img class="translate-icon" id="translate-btn" src="{% static 'images/translate.jpg' %}" />
         </div>
+        <div class="icon-wrapper">
+            <img class="control-icon" id="chat-btn" src="{% static 'images/chat.svg' %}" alt="Chat" />
+        </div>
     </section>
+
+    <div id="chat-container" class="fade-out">
+        <div id="chat-header">
+            <p>Live Chat</p>
+            <button id="close-chat">&times;</button>
+        </div>
+        <div id="chat-messages"></div>
+        <p id="typing-indicator">Someone is typing...</p>
+        <div id="chat-input-container">
+            <input type="text" id="chat-input" placeholder="Type a message..." />
+            <button id="send-chat">Send</button>
+        </div>
+    </div>
 </main>
 
 {% endblock content %}

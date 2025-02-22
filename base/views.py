@@ -66,3 +66,8 @@ def deleteMember(request):
         return JsonResponse({'message': 'Member deleted'}, safe=False)
     except RoomMember.DoesNotExist:
         return JsonResponse({'error': 'Member not found'}, status=404)
+
+from django.shortcuts import render
+
+def chat_room(request):
+    return render(request, "room.html")
