@@ -1,0 +1,166 @@
+/* Dark Theme Styles */
+#chat-container {
+    position: fixed;
+    bottom: 60px; /* Adjusted to be above chat icon */
+    right: 80px; /* Adjusted to be slightly left of chat icon */
+    width: 350px;
+    height: 420px;
+    background: rgba(30, 30, 30, 0.95); /* Dark Glass Effect */
+    border-radius: 12px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.3s ease-in-out;
+    transform: translateY(20px) translateX(20px);
+    opacity: 0;
+    backdrop-filter: blur(10px);
+}
+
+/* When chat opens */
+#chat-container.show {
+    display: flex;
+    transform: translateY(0) translateX(0);
+    opacity: 1;
+}
+
+
+/* Chat Header */
+#chat-header {
+    background: rgba(50, 50, 50, 0.9);
+    color: white;
+    padding: 14px;
+    font-size: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    cursor: grab;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#close-chat {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+#close-chat:hover {
+    transform: scale(1.2);
+}
+
+/* Chat Messages */
+#chat-messages {
+    flex-grow: 1;
+    padding: 10px;
+    overflow-y: auto;
+    max-height: 320px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Custom Scrollbar */
+#chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+#chat-messages::-webkit-scrollbar-thumb {
+    background: rgba(100, 100, 100, 0.8);
+    border-radius: 5px;
+}
+
+#chat-messages::-webkit-scrollbar-track {
+    background: rgba(50, 50, 50, 0.3);
+}
+
+/* Chat Message Styles */
+.message {
+    max-width: 75%;
+    padding: 8px 14px;
+    border-radius: 14px;
+    margin-bottom: 8px;
+    font-size: 14px;
+    animation: fadeIn 0.3s ease-in-out;
+    word-wrap: break-word;
+}
+
+.message.user {
+    background: #007bff;
+    color: white;
+    align-self: flex-end;
+}
+
+.message.other {
+    background: #444;
+    color: white;
+    align-self: flex-start;
+}
+
+/* Message Fade Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Chat Input Section */
+#chat-input-container {
+    display: flex;
+    padding: 6px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(50, 50, 50, 0.9);
+}
+
+#chat-input {
+    flex-grow: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    outline: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    transition: background 0.2s;
+}
+
+#chat-input:focus {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+#send-chat {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    cursor: pointer;
+    border-radius: 6px;
+    margin-left: 5px;
+    transition: background 0.2s;
+}
+
+#send-chat:hover {
+    background: #0056b3;
+}
+
+/* Typing Indicator */
+#typing-indicator {
+    font-size: 13px;
+    color: rgba(200, 200, 200, 0.8);
+    display: none;
+    padding: 5px 10px;
+    font-style: italic;
+    animation: fadeBlink 1s infinite;
+}
+
+@keyframes fadeBlink {
+    0% { opacity: 0.3; }
+    50% { opacity: 1; }
+    100% { opacity: 0.3; }
+}
