@@ -33,15 +33,23 @@ def room(request):
 def createMember(request):
     data = json.loads(request.body)
 
+    print("Received Data in createMember:", data)  # Debugging Step
+
+    preferred_language = data.get('preferred_language')
+    if not preferred_language:
+        print("Warning: preferred_language is missing in request data. Defaulting to 'en'")
+        preferred_language = 'en'
+
     member, created = RoomMember.objects.update_or_create(
         uid=data['UID'],
         defaults={
             "name": data['name'],
             "room_name": data['room_name'],
-            "preferred_language": data.get('preferred_language', 'en')
+            "preferred_language": preferred_language
         }
     )
-    
+
+    print("Stored Language in DB:", member.preferred_language)  # Debugging Step
     return JsonResponse({'name': data['name'], 'preferred_language': member.preferred_language}, safe=False)
 
 # Get User Information
