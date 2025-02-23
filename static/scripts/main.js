@@ -168,7 +168,7 @@
     // Function to Initialize Speech Translation with Language Detection
     let initSpeechTranslation = (audioTrack) => {
         const speechConfig = SpeechSDK.SpeechTranslationConfig.fromSubscription(AZURE_SPEECH_KEY, AZURE_REGION);
-        speechConfig.speechRecognitionLanguage = "en-US"; // Default language
+        speechConfig.speechRecognitionLanguage = "hi-IN"; // Default language
         speechConfig.addTargetLanguage(PREFERRED_LANGUAGE);
         speechConfig.enableLanguageId = true;
     
