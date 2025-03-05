@@ -69,6 +69,8 @@ let joinAndDisplayLocalStream = async () => {
     document.getElementById("mic-btn").style.backgroundColor = "#fff";
 };
 
+let activeRecognizers = {}; // Store active recognizers to avoid duplicates
+
 let handleUserJoined = async (user, mediaType) => {
     remoteUsers[user.uid] = user;
     await client.subscribe(user, mediaType);
@@ -92,11 +94,15 @@ let handleUserJoined = async (user, mediaType) => {
 
     if (mediaType === "audio") {
         user.audioTrack.play();
-        if (user.uid !== UID) { // Only initialize speech translation for remote users
-            initSpeechTranslation(user.audioTrack.getMediaStreamTrack());
+
+        if (user.uid !== UID && !activeRecognizers[user.uid]) { // Prevent duplicate translation
+            activeRecognizers[user.uid] = true;
+            let remoteStream = new MediaStream([user.audioTrack.getMediaStreamTrack()]);
+            initSpeechTranslation(remoteStream);
         }
     }
 };
+
 
 let handleUserLeft = async (user) => {
     delete remoteUsers[user.uid];
@@ -179,36 +185,48 @@ let deleteMember = async () => {
 window.addEventListener("beforeunload", deleteMember);
 
 // Function to Initialize Speech Translation with Language Detection
-let initSpeechTranslation = (audioTrack) => {
+let currentRecognizer = null; // Store the current recognizer
+
+let initSpeechTranslation = (audioStream) => {
+    if (currentRecognizer) {
+        currentRecognizer.stopContinuousRecognitionAsync();
+        currentRecognizer.close();
+    }
+
     const speechConfig = SpeechSDK.SpeechTranslationConfig.fromSubscription(AZURE_SPEECH_KEY, AZURE_REGION);
-    speechConfig.speechRecognitionLanguage = INPUT_LANGUAGE; // Default language
+    speechConfig.speechRecognitionLanguage = INPUT_LANGUAGE; // Remote user language
     speechConfig.addTargetLanguage(PREFERRED_LANGUAGE);
     speechConfig.enableLanguageId = true;
 
-    const recognizer = new SpeechSDK.TranslationRecognizer(speechConfig);
+    const audioConfig = SpeechSDK.AudioConfig.fromStreamInput(audioStream);
+    currentRecognizer = new SpeechSDK.TranslationRecognizer(speechConfig, audioConfig);
 
-    recognizer.recognizing = (s, e) => {
+    currentRecognizer.recognizing = (s, e) => {
         if (isTranslationEnabled) {
             console.log(`Recognizing: ${e.result.text}`);
         }
     };
 
-    recognizer.recognized = (s, e) => {
+    currentRecognizer.recognized = (s, e) => {
         if (isTranslationEnabled && e.result.reason === SpeechSDK.ResultReason.TranslatedSpeech) {
             const translatedText = e.result.translations.get(PREFERRED_LANGUAGE);
             console.log(`Translated (${PREFERRED_LANGUAGE}): ${translatedText}`);
-            playTranslatedSpeech(translatedText , PREFERRED_LANGUAGE);
+            playTranslatedSpeech(translatedText, PREFERRED_LANGUAGE);
         }
     };
 
-    recognizer.startContinuousRecognitionAsync();
+    currentRecognizer.startContinuousRecognitionAsync();
 };
 
-// Function to convert translated text into speech
-let playTranslatedSpeech = async (text, language) => {
-    if (!text) return; // Prevent empty text from being processed
 
-    // Map language codes to specific neural voices
+
+// Function to convert translated text into speech
+let lastSpokenText = "";
+
+let playTranslatedSpeech = async (text, language) => {
+    if (!text || text === lastSpokenText) return; // Prevent duplicate speech
+    lastSpokenText = text;
+
     const voiceMap = {
         "hi": "hi-IN-MadhurNeural",
         "en": "en-US-JennyNeural",
@@ -217,10 +235,8 @@ let playTranslatedSpeech = async (text, language) => {
         "de": "de-DE-KatjaNeural"
     };
 
-    // Select the voice based on language, default to English
     const selectedVoice = voiceMap[language];
 
-    // Create SpeechConfig for Text-to-Speech
     const speechConfig = SpeechSDK.SpeechConfig.fromSubscription(AZURE_SPEECH_KEY, AZURE_REGION);
     speechConfig.speechSynthesisVoiceName = selectedVoice;
 
@@ -243,6 +259,7 @@ let playTranslatedSpeech = async (text, language) => {
         }
     );
 };
+
 
 
 joinAndDisplayLocalStream();
