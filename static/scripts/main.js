@@ -9,8 +9,21 @@ let NAME = sessionStorage.getItem("name");
 
 // Get User's Preferred Language from Session Storage
 const PREFERRED_LANGUAGE = sessionStorage.getItem("preferred_language") || "en"; // Default to English
-console.log(`Preferred Language: ${PREFERRED_LANGUAGE}`);
+const LANGUAGE_MAP = {
+    "en": "en-US",
+    "es": "es-ES",
+    "fr": "fr-FR",
+    "de": "de-DE",
+    "hi": "hi-IN",
+    "zh": "zh-CN"
+};
 
+// Retrieve the stored language or default to "en"
+const storedLanguage = sessionStorage.getItem("input_language") || "en";
+const INPUT_LANGUAGE = LANGUAGE_MAP[storedLanguage] || "en-US";; // Default to English
+
+console.log(`Preferred Language: ${PREFERRED_LANGUAGE}`);
+console.log(`INPUT Language: ${INPUT_LANGUAGE}`);
 const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
 
 let localTracks = [];
@@ -168,7 +181,7 @@ window.addEventListener("beforeunload", deleteMember);
 // Function to Initialize Speech Translation with Language Detection
 let initSpeechTranslation = (audioTrack) => {
     const speechConfig = SpeechSDK.SpeechTranslationConfig.fromSubscription(AZURE_SPEECH_KEY, AZURE_REGION);
-    speechConfig.speechRecognitionLanguage = "hi-IN"; // Default language
+    speechConfig.speechRecognitionLanguage = INPUT_LANGUAGE; // Default language
     speechConfig.addTargetLanguage(PREFERRED_LANGUAGE);
     speechConfig.enableLanguageId = true;
 
@@ -184,7 +197,7 @@ let initSpeechTranslation = (audioTrack) => {
         if (isTranslationEnabled && e.result.reason === SpeechSDK.ResultReason.TranslatedSpeech) {
             const translatedText = e.result.translations.get(PREFERRED_LANGUAGE);
             console.log(`Translated (${PREFERRED_LANGUAGE}): ${translatedText}`);
-            playTranslatedSpeech(translatedText);
+            playTranslatedSpeech(translatedText , PREFERRED_LANGUAGE);
         }
     };
 
@@ -192,21 +205,33 @@ let initSpeechTranslation = (audioTrack) => {
 };
 
 // Function to convert translated text into speech
-let playTranslatedSpeech = async (text) => {
+let playTranslatedSpeech = async (text, language) => {
     if (!text) return; // Prevent empty text from being processed
+
+    // Map language codes to specific neural voices
+    const voiceMap = {
+        "hi": "hi-IN-MadhurNeural",
+        "en": "en-US-JennyNeural",
+        "fr": "fr-FR-DeniseNeural",
+        "es": "es-ES-ElviraNeural",
+        "de": "de-DE-KatjaNeural"
+    };
+
+    // Select the voice based on language, default to English
+    const selectedVoice = voiceMap[language];
 
     // Create SpeechConfig for Text-to-Speech
     const speechConfig = SpeechSDK.SpeechConfig.fromSubscription(AZURE_SPEECH_KEY, AZURE_REGION);
-    speechConfig.speechSynthesisVoiceName = PREFERRED_LANGUAGE === "hi" ? "hi-IN-MadhurNeural" : "en-US-JennyNeural"; // Example voices
+    speechConfig.speechSynthesisVoiceName = selectedVoice;
 
-    const audioConfig = SpeechSDK.AudioConfig.fromDefaultSpeakerOutput(); // Ensures correct audio output
-    const synthesizer = new SpeechSDK.SpeechSynthesizer(speechConfig);
+    const audioConfig = SpeechSDK.AudioConfig.fromDefaultSpeakerOutput();
+    const synthesizer = new SpeechSDK.SpeechSynthesizer(speechConfig, audioConfig);
 
     synthesizer.speakTextAsync(
         text,
         (result) => {
             if (result.reason === SpeechSDK.ResultReason.SynthesizingAudioCompleted) {
-                console.log("Audio played successfully.");
+                console.log(`Audio played successfully in ${language} (${selectedVoice}).`);
             } else {
                 console.error("Speech synthesis error:", result.errorDetails);
             }
@@ -218,6 +243,7 @@ let playTranslatedSpeech = async (text) => {
         }
     );
 };
+
 
 joinAndDisplayLocalStream();
 

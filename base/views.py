@@ -30,27 +30,29 @@ def room(request):
 
 # Store User & Preferred Language
 @csrf_exempt
+@csrf_exempt
 def createMember(request):
     data = json.loads(request.body)
 
-    print("Received Data in createMember:", data)  # Debugging Step
+    print("Received Data in createMember:", data)  # Debugging
 
-    preferred_language = data.get('preferred_language')
-    if not preferred_language:
-        print("Warning: preferred_language is missing in request data. Defaulting to 'en'")
-        preferred_language = 'en'
+    input_language = data.get('input_language', 'en')
+    preferred_language = data.get('preferred_language', 'en')
 
     member, created = RoomMember.objects.update_or_create(
         uid=data['UID'],
         defaults={
             "name": data['name'],
             "room_name": data['room_name'],
+            "input_language": input_language,
             "preferred_language": preferred_language
         }
     )
 
-    print("Stored Language in DB:", member.preferred_language)  # Debugging Step
-    return JsonResponse({'name': data['name'], 'preferred_language': member.preferred_language}, safe=False)
+    print("Stored Input Language:", member.input_language)  # Debugging
+    print("Stored Output Language:", member.preferred_language)  # Debugging
+
+    return JsonResponse({'name': data['name'], 'input_language': member.input_language, 'preferred_language': member.preferred_language}, safe=False)
 
 # Get User Information
 def getMember(request):
@@ -59,7 +61,11 @@ def getMember(request):
 
     try:
         member = RoomMember.objects.get(uid=uid, room_name=room_name)
-        return JsonResponse({'name': member.name, 'preferred_language': member.preferred_language}, safe=False)
+        return JsonResponse({
+            'name': member.name,
+            'input_language': member.input_language,
+            'preferred_language': member.preferred_language
+        }, safe=False)
     except RoomMember.DoesNotExist:
         return JsonResponse({'error': 'User not found'}, status=404)
 

@@ -34,6 +34,20 @@
                         <option value="zh">Chinese</option>
                     </select>
                 </div>
+                
+                <div class="form-field">
+                    <label>Input Language:</label>
+                    <select name="input_language" id="input_language">
+                        <option value="en" selected>English</option>
+                        <option value="es">Spanish</option>
+                        <option value="fr">French</option>
+                        <option value="de">German</option>
+                        <option value="hi">Hindi</option>
+                        <option value="zh">Chinese</option>
+                    </select>
+                </div>
+                
+                
 
                 <div class="form-field">
                     <input type="submit" value="Join Stream" />
@@ -47,48 +61,45 @@
     let form = document.getElementById('form');
 
     let handleSubmit = async (e) => {
-        e.preventDefault();
-        let room = e.target.room.value.toUpperCase();
-        let name = e.target.name.value.toUpperCase();
-        let preferred_language = e.target.preferred_language.value;  // Fetch correct value
+    e.preventDefault();
+    let room = e.target.room.value.toUpperCase();
+    let name = e.target.name.value.toUpperCase();
+    let input_language = e.target.input_language.value;
+    let preferred_language = e.target.preferred_language.value;
 
-        console.log("Selected Language Before Sending:", preferred_language);  // Debugging
+    let response = await fetch(`/get-token/?channel=${room}`);
+    let data = await response.json();
 
-        let response = await fetch(`/get-token/?channel=${room}`);
-        let data = await response.json();
+    let UID = data.uid;
+    let token = data.token;
 
-        let UID = data.uid;
-        let token = data.token;
+    sessionStorage.setItem("UID", UID);
+    sessionStorage.setItem("token", token);
+    sessionStorage.setItem("room", room);
+    sessionStorage.setItem("name", name);
+    sessionStorage.setItem("input_language", input_language);
+    sessionStorage.setItem("preferred_language", preferred_language);
 
-        sessionStorage.setItem('UID', UID);
-        sessionStorage.setItem('token', token);
-        sessionStorage.setItem('room', room);
-        sessionStorage.setItem('name', name);
-        sessionStorage.setItem('preferred_language', preferred_language);
+    console.log("Selected Input Language:", input_language);
+    console.log("Selected Output Language:", preferred_language);
 
-        console.log("Data Sent to create-member:", {
-            UID,
-            name,
+    await fetch("/create-member/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            UID: UID,
+            name: name,
             room_name: room,
+            input_language: input_language,
             preferred_language: preferred_language
-        });  // Debugging
+        })
+    });
 
-        // Send data to backend
-        await fetch('/create-member/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                UID: UID,
-                name: name,
-                room_name: room,
-                preferred_language: preferred_language  // Ensure it's included
-            })
-        });
+    window.open("/room/", "_self");
+};
 
-        window.open('/room/', '_self');
-    };
+form.addEventListener("submit", handleSubmit);
 
-    form.addEventListener('submit', handleSubmit);
 </script>
 
 {% endblock %}
