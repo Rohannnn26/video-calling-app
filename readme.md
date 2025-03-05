@@ -42,7 +42,7 @@ Follow these steps to set up and run the project:
 ### 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/your-repo.git
+git clone https://github.com/Rohannnn26/video-calling-app
 cd your-repo
 ```
 
