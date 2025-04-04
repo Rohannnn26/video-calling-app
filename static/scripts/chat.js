@@ -43,18 +43,55 @@ document.addEventListener("DOMContentLoaded", () => {
             `ws://${window.location.host}/ws/chat/${sessionStorage.getItem("room")}/`
         );
 
-        chatSocket.onmessage = function (event) {
+        chatSocket.onmessage = async function (event) {
             let data = JSON.parse(event.data);
 
             if (data.typing) {
                 showTypingIndicator(data.username);
             } else {
-                let messageElement = document.createElement("div");
-                messageElement.classList.add("message", data.username === sessionStorage.getItem("name") ? "user" : "other");
-                messageElement.textContent = `${data.username}: ${data.message}`;
-                chatMessages.appendChild(messageElement);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
                 removeTypingIndicator(data.username);
+
+                let messageWrapper = document.createElement("div");
+messageWrapper.className = "message-wrapper " + (data.username === sessionStorage.getItem("name") ? "user" : "other");
+
+
+                let messageBubble = document.createElement("div");
+                messageBubble.className = "message " + (data.username === sessionStorage.getItem("name") ? "user" : "other");
+
+                let originalText = `${data.username}: ${data.message}`;
+                messageBubble.textContent = originalText;
+                messageBubble.dataset.original = originalText;
+                messageBubble.dataset.translated = "false";
+
+                messageWrapper.appendChild(messageBubble);
+
+                // ✅ Only for others' messages
+                if (data.username !== sessionStorage.getItem("name")) {
+                    let translateBtn = document.createElement("img");
+                    translateBtn.src = "/static/images/translate.jpg";
+                    translateBtn.className = "translate-icon";
+                    translateBtn.title = "Translate";
+
+                    translateBtn.addEventListener("click", async () => {
+                        const isTranslated = messageBubble.dataset.translated === "true";
+
+                        if (isTranslated) {
+                            messageBubble.textContent = messageBubble.dataset.original;
+                            messageBubble.dataset.translated = "false";
+                            translateBtn.title = "Translate";
+                        } else {
+                            const translatedText = await translateMessage(data.message, sessionStorage.getItem("preferred_language"));
+                            messageBubble.textContent = `${data.username}: ${translatedText}`;
+                            messageBubble.dataset.translated = "true";
+                            translateBtn.title = "Show Original";
+                        }
+                    });
+
+                    messageWrapper.appendChild(translateBtn);
+                }
+
+                chatMessages.appendChild(messageWrapper);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
             }
         };
 
@@ -101,6 +138,18 @@ document.addEventListener("DOMContentLoaded", () => {
             typingIndicator.classList.remove("show");
         } else {
             typingIndicator.textContent = `${Array.from(typingUsers).join(", ")} is typing...`;
+        }
+    }
+
+    async function translateMessage(text, targetLang = "hi") {
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            return data[0][0][0];
+        } catch (error) {
+            console.error("Translation failed:", error);
+            return text;
         }
     }
 });

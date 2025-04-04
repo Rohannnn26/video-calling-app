@@ -1,11 +1,11 @@
 /* Dark Theme Styles */
 #chat-container {
     position: fixed;
-    bottom: 60px; /* Adjusted to be above chat icon */
-    right: 80px; /* Adjusted to be slightly left of chat icon */
+    bottom: 60px;
+    right: 80px;
     width: 350px;
     height: 420px;
-    background: rgba(30, 30, 30, 0.95); /* Dark Glass Effect */
+    background: rgba(30, 30, 30, 0.95);
     border-radius: 12px;
     box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
     display: none;
@@ -17,13 +17,11 @@
     backdrop-filter: blur(10px);
 }
 
-/* When chat opens */
 #chat-container.show {
     display: flex;
     transform: translateY(0) translateX(0);
     opacity: 1;
 }
-
 
 /* Chat Header */
 #chat-header {
@@ -62,26 +60,35 @@
     flex-direction: column;
 }
 
-/* Custom Scrollbar */
+/* Scrollbar */
 #chat-messages::-webkit-scrollbar {
     width: 6px;
 }
-
 #chat-messages::-webkit-scrollbar-thumb {
     background: rgba(100, 100, 100, 0.8);
     border-radius: 5px;
 }
-
 #chat-messages::-webkit-scrollbar-track {
     background: rgba(50, 50, 50, 0.3);
 }
 
-/* Chat Message Styles */
+/* Message Wrapper */
+.message-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    max-width: 100%;
+}
+.message-wrapper.user {
+    align-items: flex-end;
+}
+
+/* Message Bubbles */
 .message {
     max-width: 75%;
     padding: 8px 14px;
     border-radius: 14px;
-    margin-bottom: 8px;
     font-size: 14px;
     animation: fadeIn 0.3s ease-in-out;
     word-wrap: break-word;
@@ -99,19 +106,38 @@
     align-self: flex-start;
 }
 
-/* Message Fade Animation */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* Translate Icon */
+.message-wrapper .translate-icon {
+    margin-top: 4px;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-/* Chat Input Section */
+.message-wrapper .translate-icon:hover {
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+/* Typing Indicator */
+#typing-indicator {
+    font-size: 13px;
+    color: rgba(200, 200, 200, 0.8);
+    display: none;
+    padding: 5px 10px;
+    font-style: italic;
+    animation: fadeBlink 1s infinite;
+}
+
+@keyframes fadeBlink {
+    0% { opacity: 0.3; }
+    50% { opacity: 1; }
+    100% { opacity: 0.3; }
+}
+
+/* Input Section */
 #chat-input-container {
     display: flex;
     padding: 6px;
@@ -149,18 +175,14 @@
     background: #0056b3;
 }
 
-/* Typing Indicator */
-#typing-indicator {
-    font-size: 13px;
-    color: rgba(200, 200, 200, 0.8);
-    display: none;
-    padding: 5px 10px;
-    font-style: italic;
-    animation: fadeBlink 1s infinite;
-}
-
-@keyframes fadeBlink {
-    0% { opacity: 0.3; }
-    50% { opacity: 1; }
-    100% { opacity: 0.3; }
+/* Fade-in animation for messages */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
