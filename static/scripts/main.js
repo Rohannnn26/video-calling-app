@@ -36,6 +36,7 @@ const AZURE_REGION = "centralindia";
 
 
 
+let areCaptionsEnabled = false;
 
 
 let joinAndDisplayLocalStream = async () => {
@@ -94,13 +95,19 @@ let handleUserJoined = async (user, mediaType) => {
 
     if (mediaType === "audio") {
         user.audioTrack.play();
-
-        if (user.uid !== UID && !activeRecognizers[user.uid]) { // Prevent duplicate translation
+    
+        if (user.uid !== UID && !activeRecognizers[user.uid]) {
             activeRecognizers[user.uid] = true;
             let remoteStream = new MediaStream([user.audioTrack.getMediaStreamTrack()]);
-            initSpeechTranslation(remoteStream);
+    
+            if (areCaptionsEnabled) {
+                initCaptions(remoteStream, user.uid);
+            }
+            // Only init translation-to-speech if enabled
+            initSpeechTranslation(remoteStream); 
         }
     }
+    
 };
 
 
@@ -133,6 +140,40 @@ let toggleTranslation = (e) => {
         console.log("Translation Disabled.");
     }
 };
+
+let toggleCaptions = (e) => {
+    areCaptionsEnabled = !areCaptionsEnabled;
+
+    if (areCaptionsEnabled) {
+        e.target.style.backgroundColor = "#fff"; // Enabled - white
+        console.log("Captions Enabled");
+
+        // Show all existing caption containers
+        document.querySelectorAll(".caption-box").forEach((el) => {
+            el.style.display = "block";
+        });
+
+        // Create recognizers for any remote user who doesn't already have captions
+        Object.values(remoteUsers).forEach(user => {
+            const captionId = `caption-${user.uid}`;
+            if (!document.getElementById(captionId)) {
+                const remoteStream = new MediaStream([user.audioTrack.getMediaStreamTrack()]);
+                initCaptions(remoteStream, user.uid);
+            }
+        });
+
+    } else {
+        e.target.style.backgroundColor = "rgb(255, 80, 80, 1)"; // Disabled - red
+        console.log("Captions Disabled");
+
+        // Hide all caption containers
+        document.querySelectorAll(".caption-box").forEach((el) => {
+            el.style.display = "none";
+        });
+    }
+};
+
+
 
 let toggleCamera = async (e) => {
     if (localTracks[1].muted) {
@@ -260,6 +301,67 @@ let playTranslatedSpeech = async (text, language) => {
     );
 };
 
+let initCaptions = (audioStream, userUID) => {
+    const speechConfig = SpeechSDK.SpeechConfig.fromSubscription(AZURE_SPEECH_KEY, AZURE_REGION);
+    speechConfig.speechRecognitionLanguage = INPUT_LANGUAGE;
+    speechConfig.enableLanguageId = true;
+
+    const audioConfig = SpeechSDK.AudioConfig.fromStreamInput(audioStream);
+    const recognizer = new SpeechSDK.SpeechRecognizer(speechConfig, audioConfig);
+
+    const captionContainerId = `caption-${userUID}`;
+    let captionBox = document.getElementById(captionContainerId);
+
+    if (!captionBox) {
+        captionBox = document.createElement("div");
+        captionBox.id = captionContainerId;
+        captionBox.className = "caption-box";
+        captionBox.style.display = areCaptionsEnabled ? "block" : "none";
+
+        // 📌 Updated styles for positioning below the video
+        captionBox.style.position = "absolute";
+        captionBox.style.bottom = "-30px"; // Positioned below video
+        captionBox.style.left = "50%";
+        captionBox.style.transform = "translateX(-50%)";
+        captionBox.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
+        captionBox.style.color = "white";
+        captionBox.style.padding = "5px 10px";
+        captionBox.style.borderRadius = "10px";
+        captionBox.style.whiteSpace = "nowrap";
+        captionBox.style.maxWidth = "90%";
+        captionBox.style.textAlign = "center";
+
+        document.getElementById(`user-container-${userUID}`).style.position = "relative"; // Parent must be relative
+        document.getElementById(`user-container-${userUID}`).appendChild(captionBox);
+    }
+
+    let hideTimeout;
+
+    recognizer.recognizing = (s, e) => {
+        if (e.result.text) {
+            captionBox.innerText = e.result.text;
+            captionBox.style.display = "block";
+
+            if (hideTimeout) clearTimeout(hideTimeout);
+        }
+    };
+
+    recognizer.recognized = (s, e) => {
+        if (e.result.text) {
+            captionBox.innerText = e.result.text;
+            captionBox.style.display = "block";
+
+            // Hide subtitle after 3 seconds of inactivity
+            if (hideTimeout) clearTimeout(hideTimeout);
+            hideTimeout = setTimeout(() => {
+                captionBox.innerText = "";
+                captionBox.style.display = "none";
+            }, 3000);
+        }
+    };
+
+    recognizer.startContinuousRecognitionAsync();
+};
 
 
 joinAndDisplayLocalStream();
@@ -272,3 +374,5 @@ document.getElementById("translate-btn").addEventListener("click", toggleTransla
 document.getElementById("leave-btn").addEventListener("click", leaveAndRemoveLocalStream);
 document.getElementById("camera-btn").addEventListener("click", toggleCamera);
 document.getElementById("mic-btn").addEventListener("click", toggleMic);
+document.getElementById("captions-btn").style.backgroundColor = "rgb(255, 80, 80, 1)"; // Default to disabled
+document.getElementById("captions-btn").addEventListener("click", toggleCaptions);

@@ -430,3 +430,10 @@ body {
 .form-field select::-webkit-scrollbar-track {
     background: var(--control-background);
 }
+
+.caption-box {
+    font-size: 14px;
+    max-width: 90%;
+    word-wrap: break-word;
+    z-index: 10;
+}
